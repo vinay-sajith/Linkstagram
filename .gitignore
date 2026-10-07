@@ -31,3 +31,5 @@ dist-ssr/
 .DS_Store
 
 postman/globals/
+.postman/
+postman/
