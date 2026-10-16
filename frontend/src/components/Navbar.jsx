@@ -2,7 +2,7 @@ function Navbar() {
     return (
         <nav>
             <div>
-                <span>◉</span>
+                <span>🔗</span>
                 <h1>LINKSTAGRAM</h1>
             </div>
 
