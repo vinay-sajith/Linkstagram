@@ -12,7 +12,6 @@ function Library(props) {
     const selectedResources = props.resources.filter(
         (resource)=> resource.category===props.selectedCategory
     );
- 
 
 
 return (
@@ -50,7 +49,7 @@ return (
             key={resource.id}
             title={resource.title}
             url={resource.url}
-
+            onEdit={() => props.onEdit(resource)}
         />
     );
 })}

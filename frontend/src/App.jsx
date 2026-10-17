@@ -9,6 +9,7 @@ function App() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [editingResource,seteditingResource]=useState(null)
 
  
   useEffect(()=>{
@@ -47,8 +48,10 @@ function App() {
 
     }
    
-    const response=await fetch("http://127.0.0.1:8000/resources/",{
-         method :'POST',
+    const response=await fetch(editingResource
+    ? `http://127.0.0.1:8000/resources/${editingResource.id}/`
+    : "http://127.0.0.1:8000/resources/",{
+         method: editingResource ? "PATCH" : "POST",
         
             headers:{
             "Content-Type": "application/json",
@@ -68,10 +71,27 @@ function App() {
     }
     const data = await response.json();
 
+if (editingResource) {
+    // PATCH: replace the existing resource
+    setResources(previousResources =>
+        previousResources.map((resource) =>
+            resource.id === editingResource.id
+                ? data
+                : resource
+                
+                
+        )
+    );
+} else {
+    // POST: append the new resource
     setResources(previousResources => [
         ...previousResources,
         data
-]);
+    ]);
+
+}
+seteditingResource(null);
+
  const settlers={
         title:setTitle,
         url:setUrl,
@@ -83,13 +103,19 @@ function App() {
   settlers[key]("");
 });
   }
+  function handleEdit(resource) {
+    seteditingResource(resource);
+        setTitle(resource.title)
+        setUrl(resource.url)
+        setCategory(resource.category)
+        console.log("Editing:", resource)
+}
 
-
-
+console.log(editingResource)
     return (
         <>
             <Navbar />
-            {!selectedCategory &&(<form onSubmit={handleSubmit}>
+            {(!selectedCategory || editingResource!==null)&&(<form onSubmit={handleSubmit}>
                 url :<input
                 type="url"
                 value={url}
@@ -105,12 +131,17 @@ function App() {
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
                 />
-                <button type="submit">ADD</button>
+                {(editingResource === null
+    ? <button type="submit">ADD</button>
+    : <button type="submit">UPDATE</button>)}
             </form>)}
             <Library
              resources={resources}
              selectedCategory={selectedCategory}
              setSelectedCategory={setSelectedCategory}
+             seteditingResource={seteditingResource}
+             onEdit={handleEdit}
+
              />            
             
 
@@ -120,6 +151,5 @@ function App() {
         </>
     );
     
-
 }
 export default App;

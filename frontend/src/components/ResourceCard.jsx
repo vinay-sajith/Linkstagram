@@ -5,6 +5,7 @@ function ResourceCard(props){
             <a href={props.url} target="_blank" rel="noopener noreferrer">
             <p>{props.url}</p>
             </a>
+            <button onClick={props.onEdit}>Edit</button>
         </div>
     )
 }
