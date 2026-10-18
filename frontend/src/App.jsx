@@ -108,10 +108,32 @@ seteditingResource(null);
         setTitle(resource.title)
         setUrl(resource.url)
         setCategory(resource.category)
-        console.log("Editing:", resource)
+}
+function handleCancel(){
+    seteditingResource(null);
+    setTitle("")
+    setUrl("")
+    setCategory("")
+}
+async function handleDelete(id) {
+    const response= await fetch(`http://127.0.0.1:8000/resources/${id}/`,
+       { method:"DELETE",
+        headers:{
+            "Authorization": "Token 6d995bb1456f7e80b454514040be52b477adf5f6",
+        }
+        
+       }
+    )
+    if (!response.ok) {
+    const errorData=await response.json()
+    console.log(errorData)
+    return;
+}
+setResources(previousResources=>previousResources.filter(resources=>resources.id !== id))
+
+
 }
 
-console.log(editingResource)
     return (
         <>
             <Navbar />
@@ -133,7 +155,8 @@ console.log(editingResource)
                 />
                 {(editingResource === null
     ? <button type="submit">ADD</button>
-    : <button type="submit">UPDATE</button>)}
+    : <div><button type="submit">UPDATE</button><button onClick={handleCancel}>cancel</button></div>
+)}
             </form>)}
             <Library
              resources={resources}
@@ -141,6 +164,8 @@ console.log(editingResource)
              setSelectedCategory={setSelectedCategory}
              seteditingResource={seteditingResource}
              onEdit={handleEdit}
+             onCancel={handleCancel}
+             onDelete={handleDelete}
 
              />            
             

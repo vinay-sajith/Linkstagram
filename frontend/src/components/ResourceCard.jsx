@@ -6,6 +6,7 @@ function ResourceCard(props){
             <p>{props.url}</p>
             </a>
             <button onClick={props.onEdit}>Edit</button>
+            <button onClick={props.onDelete}>Delete</button>
         </div>
     )
 }

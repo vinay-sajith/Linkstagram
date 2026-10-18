@@ -50,6 +50,7 @@ return (
             title={resource.title}
             url={resource.url}
             onEdit={() => props.onEdit(resource)}
+            onDelete={()=>props.onDelete(resource.id)}
         />
     );
 })}
