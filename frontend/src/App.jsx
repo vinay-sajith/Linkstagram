@@ -137,22 +137,41 @@ setResources(previousResources=>previousResources.filter(resources=>resources.id
     return (
         <>
             <Navbar />
-            {(!selectedCategory || editingResource!==null)&&(<form onSubmit={handleSubmit}>
-                url :<input
-                type="url"
-                value={url}
-                onChange={(event) => setUrl(event.target.value)}
-                /><br/>
-                title :<input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                /><br/>
-                category :<input
-                type="text"
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                />
+          {(!selectedCategory || editingResource !== null) && (
+  <form onSubmit={handleSubmit}>
+    URL:
+    <input
+      type="url"
+      value={url}
+      onChange={(event) => setUrl(event.target.value)}
+      required
+    />
+    <br />
+
+    {editingResource !== null && (
+      <>
+        Title:
+        <input
+          type="text"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          required
+        />
+        <br />
+
+        Category:
+        <input
+          type="text"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          required
+        />
+        <br />
+      </>
+    )}
+
+    {/* Keep your existing submit and cancel buttons here */}
+  
                 {(editingResource === null
     ? <button type="submit">ADD</button>
     : <div><button type="submit">UPDATE</button><button onClick={handleCancel}>cancel</button></div>
@@ -166,6 +185,7 @@ setResources(previousResources=>previousResources.filter(resources=>resources.id
              onEdit={handleEdit}
              onCancel={handleCancel}
              onDelete={handleDelete}
+             
 
              />            
             

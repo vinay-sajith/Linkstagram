@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from .permissions import IsOwner
 from rest_framework.authtoken.models import Token
+import requests
+N8N_WEBHOOK_URL = "http://localhost:5678/webhook/linkstagram-resource"
 class ResourceAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated,IsOwner]
@@ -90,4 +92,34 @@ class LoginAPIView(APIView):
             else:
                 return Response("invaild username or password",status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        
+
+class AIResourceAPIView(APIView):
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
+    def post(self, request):
+        url = request.data.get("url")
+        if not url:
+            return Response(
+            {"error": "URL is required"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+        try:
+            response = requests.post(
+            N8N_WEBHOOK_URL,
+            json={"url": url},
+            timeout=60
+        )
+            response.raise_for_status()
+            resource_data = response.json()
+            serialized_resource = ResourceSerializer(data=resource_data,context={"request": request})
+            if serialized_resource.is_valid():
+                serialized_resource.save()
+                return Response(serialized_resource.data,status=201)
+            else:
+                return Response(serialized_resource.errors,status=status.HTTP_400_BAD_REQUEST)
+
+        except ValueError:
+            return Response(
+        {"error": "n8n returned invalid JSON"},
+        status=status.HTTP_502_BAD_GATEWAY
+    )
