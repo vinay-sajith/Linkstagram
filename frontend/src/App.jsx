@@ -41,16 +41,21 @@ function App() {
   },[])
    async function handleSubmit(event) {
     event.preventDefault()
-    const resourceData = {
+    let resourceData
+    if (editingResource !== null) {
+         resourceData = {
         title:title,
         url:url,
         category:category
 
-    }
-   
+    }}
+    else{
+         resourceData = {
+        url:url
+    }}
     const response=await fetch(editingResource
     ? `http://127.0.0.1:8000/resources/${editingResource.id}/`
-    : "http://127.0.0.1:8000/resources/",{
+    : "http://127.0.0.1:8000/resources/ai/",{
          method: editingResource ? "PATCH" : "POST",
         
             headers:{
@@ -70,6 +75,9 @@ function App() {
 
     }
     const data = await response.json();
+    console.log("API response:", data);
+    console.log("Current resources:", resources);
+    
 
 if (editingResource) {
     // PATCH: replace the existing resource
@@ -88,9 +96,9 @@ if (editingResource) {
         ...previousResources,
         data
     ]);
-
 }
 seteditingResource(null);
+
 
  const settlers={
         title:setTitle,
@@ -170,7 +178,6 @@ setResources(previousResources=>previousResources.filter(resources=>resources.id
       </>
     )}
 
-    {/* Keep your existing submit and cancel buttons here */}
   
                 {(editingResource === null
     ? <button type="submit">ADD</button>
