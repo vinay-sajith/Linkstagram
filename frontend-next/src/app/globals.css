@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --muted: #737373;
+  --border: #e5e5e5;
+  --accent: #635bff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 8%;
+  border-bottom: 1px solid var(--border);
+}
+
+header h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+section {
+  padding: 100px 8%;
+}
+
+section > p:first-child {
+  margin-bottom: 22px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+section h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(40px, 6vw, 68px);
+  font-weight: 700;
+  letter-spacing: -3px;
+  line-height: 1.12;
+}
+
+section h1 + p {
+  max-width: 480px;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+button {
+  margin-top: 30px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--foreground);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: var(--accent);
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 22px 6%;
+  }
+
+  section {
+    padding: 72px 6%;
+  }
+
+  section h1 {
+    letter-spacing: -2px;
+  }
+}

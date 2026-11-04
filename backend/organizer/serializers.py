@@ -63,8 +63,12 @@ class LoginSerializer(serializers.Serializer):
     password=serializers.CharField()
     
 
+class CategorySerializer(serializers.ModelSerializer):
+    count = serializers.SerializerMethodField()
 
-
-
-    
+    class Meta:
+        model = Category
+        fields = ["id", "name", "count"]
+    def get_count(self, obj):
+        return obj.resource_set.count()
     

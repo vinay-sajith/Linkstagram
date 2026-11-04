@@ -16,7 +16,7 @@ function App() {
     async function getResource() {
             const response=await fetch("http://127.0.0.1:8000/resources/",{
                 headers:{
-                     Authorization: "Token 6d995bb1456f7e80b454514040be52b477adf5f6",
+                     Authorization: `Token ${token}`,
 
                 }
             }

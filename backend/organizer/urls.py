@@ -7,5 +7,7 @@ urlpatterns = [
     path("register/",views.RegisterAPIView.as_view(),name="register"),
     path("login/",views.LoginAPIView.as_view(),name="login"),
     path("resources/ai/", views.AIResourceAPIView.as_view()),
+    path("token/refresh/", views.TokenRefreshAPIView.as_view()),
+    path("categories/", views.CategoryListAPIView.as_view(), name="categories"),
     
 ]
