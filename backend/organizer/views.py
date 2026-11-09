@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate
 from .permissions import IsOwner
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 import requests
+from django.db import transaction
 N8N_WEBHOOK_URL = "http://localhost:5678/webhook/linkstagram-resource"
 class ResourceAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
@@ -26,7 +27,7 @@ class ResourceAPIView(APIView):
             if category_id:
                 resource=resource.filter(category_id=category_id)
             serialized_resource = ResourceSerializer(resource, many=True)
-            
+
 
         else:
             resource=get_object_or_404(Resource,id=pk)
@@ -45,12 +46,17 @@ class ResourceAPIView(APIView):
             return Response(serialized_resource.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        resource = get_object_or_404(
+        with transaction.atomic():
+            resource = get_object_or_404(
         Resource,
         id=pk
     )
-        self.check_object_permissions(request,resource)
-        resource.delete()
+            self.check_object_permissions(request,resource)
+            category = resource.category
+            resource.delete()
+            if not category.resource_set.exists():
+                category.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def put(self,request,pk):
@@ -158,3 +164,7 @@ class CategoryListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return Category.objects.filter(owner=self.request.user)
+
+
+
+        

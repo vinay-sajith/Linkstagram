@@ -3,9 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 class CookieJWTAuthentication(JWTAuthentication):
 
     def authenticate(self, request):
-        print("Cookie authentication called")
-        print("Cookies received:", request.COOKIES.keys())
-        print("Access cookie found:", bool(request.COOKIES.get("access")))
+
 
         raw_token = request.COOKIES.get("access")
 

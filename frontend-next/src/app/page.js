@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import CategoryCard from "./components/CategoryCard";
+import AddResourcePage from "./add/page";
 
 export default async function Home() {
 
@@ -63,7 +64,7 @@ export default async function Home() {
           Find what you need, when you need it.
         </p>
 
-        <button>Add Resource</button>
+        <div><AddResourcePage/></div>
       </section>
 
       <section>

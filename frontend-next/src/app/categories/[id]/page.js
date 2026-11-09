@@ -12,6 +12,7 @@ export default async function CategoryPage({ params }) {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access")?.value;
 
+
   // 3. Check authentication
   if (!accessToken) {
     redirect("/login");
@@ -77,6 +78,7 @@ export default async function CategoryPage({ params }) {
             <ResourceCard
               key={resource.id}
               resource={resource}
+              categories={categories}
             />
           ))
         )}
