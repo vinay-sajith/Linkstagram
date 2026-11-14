@@ -12,6 +12,9 @@ from .permissions import IsOwner
 from rest_framework_simplejwt.tokens import RefreshToken,TokenError
 import requests
 from django.db import transaction
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from django.conf import settings
+
 N8N_WEBHOOK_URL = "http://localhost:5678/webhook/linkstagram-resource"
 class ResourceAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
@@ -138,22 +141,58 @@ class AIResourceAPIView(APIView):
         status=status.HTTP_502_BAD_GATEWAY
     )
 
+
 class TokenRefreshAPIView(APIView):
-    def post(self,request):
+    def post(self, request):
+
         raw_token = request.COOKIES.get("refresh")
+
         if raw_token is None:
-            return Response("refresh doesnot exit",status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Refresh token does not exist"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         try:
-            refresh = RefreshToken(raw_token)
-            access = refresh.access_token
-            response = Response(status=status.HTTP_200_OK)
-            response.set_cookie(key="access",value=str(access),httponly=True,samesite="Lax")
+            token_serializer = TokenRefreshSerializer(
+                data={"refresh": raw_token}
+            )
+
+            token_serializer.is_valid(raise_exception=True)
+
+            token = token_serializer.validated_data
+
+            response = Response({
+                "message": "Token refreshed successfully"
+            })
+
+            response.set_cookie(
+                key="access",
+                value=token["access"],
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite="Lax",
+                path="/"
+            )
+
+            response.set_cookie(
+                key="refresh",
+                value=token["refresh"],
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite="Lax",
+                path="/"
+            )
+
             return response
 
-        except TokenError:
+        except Exception as e:
             return Response(
-        {"error": "Invalid or expired refresh token"},status=status.HTTP_401_UNAUTHORIZED)
-        
+                {"error": str(e)},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
 class CategoryListAPIView(generics.ListAPIView):
     authentication_classes = [CookieJWTAuthentication]
 
@@ -167,4 +206,3 @@ class CategoryListAPIView(generics.ListAPIView):
 
 
 
-        

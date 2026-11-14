@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ResourceCard({ resource, categories }) {
+export default function ResourceCard({ resource, categories , isLastResource }) {
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(resource.title);
     const [category, setCategory] = useState(resource.category);    
@@ -14,8 +14,14 @@ export default function ResourceCard({ resource, categories }) {
                 
               });
               if (response.ok) {
-                router.refresh();
-            }
+    if (isLastResource) {
+        router.replace("/");
+        return;
+    }
+
+    router.refresh();
+}
+            
 
   }
   async function handleSave() {
@@ -52,9 +58,6 @@ export default function ResourceCard({ resource, categories }) {
   setIsEditing(false);
 }
 
-
-        
- 
 
     
   return (
