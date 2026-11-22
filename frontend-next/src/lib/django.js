@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-export async function djangoFetch(path, options = {}) {
+export async function djangoFetch(request,path, options = {}) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access")?.value;
     const refreshToken = cookieStore.get("refresh")?.value;
@@ -14,34 +14,61 @@ export async function djangoFetch(path, options = {}) {
         ...options,
         headers: headers
     });
+    console.log("ACCESS TOKEN EXISTS:", !!accessToken);
+console.log("REFRESH TOKEN EXISTS:", !!refreshToken);
+console.log("DJANGO RESPONSE STATUS:", response.status);
+    const refreshUrl = new URL("/api/refresh", request.url);
     if (response.status === 401 && refreshToken){
-            const refreshResponse = await fetch(
-    `${process.env.DJANGO_API_URL}/token/refresh/`,
-    {
-        method: "POST",
-        headers: {
-            Cookie: `refresh=${refreshToken}`,
-        },
-        cache: "no-store",
+           const refreshResponse = await fetch(refreshUrl, {
+    method: "POST",
+    headers:{
+        Cookie:`refresh=${refreshToken}`,
     }
-);
+});
+
     if (!refreshResponse.ok) {
-    return response;
+    return {
+        response,
+        setCookies: []
+
+    };
 }
     const setCookies = refreshResponse.headers.getSetCookie();
     const accessCookie=setCookies.find((cookie)=>cookie.startsWith("access="))
-    const newAccessToken = accessCookie
-    ?.split(";")[0]
-    .slice("access=".length);
+    const refreshCookie=setCookies.find((cookie)=>cookie.startsWith("refresh="))
+    const newAccessToken=accessCookie?.split(";")[0].slice("access=".length);
     if (!newAccessToken) {
-    return response;
+    return {
+        response: Response.json(
+            { error: "Access token refresh failed" },
+            { status: 401 }
+        ),
+        setCookies: [],
+
+    };
 }
-    cookieStore.set("access", newAccessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-});
+    const newRefreshToken=refreshCookie?.split(";")[0].slice("refresh=".length)
+    if (!newRefreshToken) {
+        return {
+    response: Response.json(
+        { error: "access Token refresh failed" },
+        { status: 401 }
+    ),
+    setCookies: []
+};}
+console.log("INTERNAL REFRESH STATUS:", refreshResponse.status);
+
+
+console.log("REFRESH RESPONSE COOKIE COUNT:", setCookies.length);
+console.log(
+    "NEW ACCESS COOKIE:",
+    setCookies.some(c => c.startsWith("access="))
+);
+console.log(
+    "NEW REFRESH COOKIE:",
+    setCookies.some(c => c.startsWith("refresh="))
+);
+    
     const retryResponse = await fetch(
     `${process.env.DJANGO_API_URL}${path}`,
     {
@@ -52,11 +79,18 @@ export async function djangoFetch(path, options = {}) {
         },
     }
 );
+console.log("RETRY RESPONSE STATUS:", retryResponse.status);
 
 
-return retryResponse;
+return {
+    response: retryResponse,
+    setCookies
+};
     }
     
 
-    return response;
+    return {
+    response:response,
+    setCookies: []
+};
 }

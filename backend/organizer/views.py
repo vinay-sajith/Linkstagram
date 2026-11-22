@@ -27,18 +27,29 @@ class ResourceAPIView(APIView):
 
             resource=Resource.objects.filter(owner=request.user)
             category_id = request.query_params.get("category_id")
+            categories = Category.objects.filter(owner=request.user)
+            serialized_categories = CategorySerializer(categories, many=True)
+            
             if category_id:
-                resource=resource.filter(category_id=category_id)
+                resource = resource.filter(category_id=category_id)
+                category = Category.objects.get(id=category_id,owner=request.user)
+                serialized_category = CategorySerializer(category)
+            
             serialized_resource = ResourceSerializer(resource, many=True)
-
+          
+            if category_id:
+                return Response({
+                    "category": serialized_category.data,
+                    "resources": serialized_resource.data,
+                    "categories": serialized_categories.data
+                    })
+            return Response(serialized_resource.data)
+                
 
         else:
             resource=get_object_or_404(Resource,id=pk)
             self.check_object_permissions(request,resource)
             serialized_resource = ResourceSerializer(resource)
-
-        return Response(serialized_resource.data)
-        
     
     def post(self,request):
         serialized_resource= ResourceSerializer(data=request.data,context={"request":request})

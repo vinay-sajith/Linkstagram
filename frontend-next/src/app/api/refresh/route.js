@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 
 export async function POST(request) {
 
+
     const cookieStore = await cookies();
 
     const refreshToken = cookieStore.get("refresh")?.value;
@@ -21,6 +22,11 @@ export async function POST(request) {
         },
         cache: "no-store",
     })
+    console.log("REFRESH ROUTE CALLED");
+    console.log("REFRESH TOKEN EXISTS:", !!refreshToken);
+    console.log("DJANGO REFRESH STATUS:", refreshResponse.status);
+    const errorData = await refreshResponse.json();
+    console.log("DJANGO REFRESH ERROR:", errorData);
     if (!refreshResponse.ok) {
     return Response.json(
         { error: "Token refresh failed" },

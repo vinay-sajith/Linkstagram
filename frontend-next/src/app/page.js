@@ -5,39 +5,29 @@ import AddResourcePage from "./add/page";
 
 export default async function Home() {
 
+
   // 1. Read browser cookies
   const cookieStore = await cookies();
 
-  // 2. Get access token
-  const accessToken = cookieStore.get("access")?.value;
-
-  // 3. Check authentication
-  if (!accessToken) {
-    redirect("/login");
-  }
-
-  // 4. Fetch categories from Django
-  const djangoResponse = await fetch(
-    `${process.env.DJANGO_API_URL}/categories/`,
+const resourceResponse = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/home/`,
     {
-      method: "GET",
-      headers: {
-        Cookie: `access=${accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
+        headers: {
+            Cookie: cookieStore.toString(),
+        },
+        cache: "no-store",
+    })
 
   // 5. Handle errors
-  if (djangoResponse.status === 401) {
+if (resourceResponse.status === 401) {
     redirect("/login");
-  }
+}
 
-  if (!djangoResponse.ok) {
+if (!resourceResponse.ok) {
     throw new Error("Failed to fetch categories");
-  }
+}
 
-  const categories = await djangoResponse.json();
+const categories = await resourceResponse.json();
 
   if (!Array.isArray(categories)) {
     throw new Error("Invalid categories response");

@@ -20,9 +20,9 @@ export async function POST(request) {
       status: djangoResponse.status,
     });
 
-    // Forward Django's HttpOnly cookies to the browser.
+   
     const cookies = djangoResponse.headers.getSetCookie();
-
+ // Forward Django's HttpOnly cookies to the browser.
     cookies.forEach((cookie) => {
       response.headers.append("Set-Cookie", cookie);
     });

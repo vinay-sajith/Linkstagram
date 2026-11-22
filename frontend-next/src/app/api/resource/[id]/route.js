@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { djangoFetch } from "../../../../lib/django";
+import { forwardCookies } from "@/lib/api-response";
 
 // 1. Shared function
 async function forwardToDjango(request, context, method) {
@@ -17,32 +18,36 @@ async function forwardToDjango(request, context, method) {
   options.headers["Content-Type"] = "application/json";
   options.body = JSON.stringify(data);
 }
-const djangoResponse = await djangoFetch(
+const {response:djangoResponse,setCookies:setCookies} = await djangoFetch(request,
     `/resources/${id}/`,
     options
 );
   const responseText = await djangoResponse.text();
-  if (!responseText) {
-  return new Response(null, {
-    status: djangoResponse.status,
-  });
-  
-  
+if (!responseText) {
+    const finalResponse = new Response(null, {
+        status: djangoResponse.status,
+    });
+
+    return forwardCookies(finalResponse, setCookies);
 }
   try {
-  const data = JSON.parse(responseText);
+    const data = JSON.parse(responseText);
 
-  return NextResponse.json(data, {
-    status: djangoResponse.status,
-  });
+    const finalResponse = Response.json(data, {
+        status: djangoResponse.status,
+    });
+
+    return forwardCookies(finalResponse, setCookies);
+
 } catch {
-  return new Response(responseText, {
-    status: djangoResponse.status,
-  });
+    const finalResponse = new Response(responseText, {
+        status: djangoResponse.status,
+    });
+
+    return forwardCookies(finalResponse, setCookies);
 }
 
-
-
+ 
 }
 
 // 2. DELETE handler
